@@ -72,4 +72,6 @@ IB_DESIGNABLE
  */
 @property (nonatomic, assign) IBInspectable float step;
 
+- (void)updateLabelPositions;
+
 @end

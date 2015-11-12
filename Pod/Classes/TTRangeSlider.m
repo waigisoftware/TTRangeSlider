@@ -67,7 +67,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.minLabel = [[CATextLayer alloc] init];
     self.minLabel.alignmentMode = kCAAlignmentCenter;
     self.minLabel.fontSize = kLabelsFontSize;
-    self.minLabel.frame = CGRectMake(0, 0, 75, TEXT_HEIGHT);
+    self.minLabel.frame = CGRectMake(0, 0, 150, TEXT_HEIGHT);
     self.minLabel.contentsScale = [UIScreen mainScreen].scale;
     self.minLabel.contentsScale = [UIScreen mainScreen].scale;
     if (self.minLabelColour == nil){
@@ -80,7 +80,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.maxLabel = [[CATextLayer alloc] init];
     self.maxLabel.alignmentMode = kCAAlignmentCenter;
     self.maxLabel.fontSize = kLabelsFontSize;
-    self.maxLabel.frame = CGRectMake(0, 0, 75, TEXT_HEIGHT);
+    self.maxLabel.frame = CGRectMake(0, 100, 150, TEXT_HEIGHT);
     self.maxLabel.contentsScale = [UIScreen mainScreen].scale;
     if (self.maxLabelColour == nil){
         self.maxLabel.foregroundColor = self.tintColor.CGColor;
@@ -96,7 +96,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [super layoutSubviews];
 
     //positioning for the slider line
-    float barSidePadding = 16.0f;
+    float barSidePadding = 8.0f;
     CGRect currentFrame = self.frame;
     float yMiddle = currentFrame.size.height/2.0;
     CGPoint lineLeftSide = CGPointMake(barSidePadding, yMiddle);
@@ -170,10 +170,26 @@ static const CGFloat kLabelsFontSize = 12.0f;
         return;
     }
 
-    NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
+//    NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
 
-    self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
-    self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
+//    self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
+//    self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
+    self.minLabel.string = [self toShortDateTimeFormat:self.selectedMinimum];
+    self.maxLabel.string = [self toShortDateTimeFormat:self.selectedMaximum];
+}
+#define SHORT_DATE_TIME_FORMAT @"dd MMM yyyy h:mm"
+-(NSString *) toShortDateTimeFormat:(NSTimeInterval)timeIntervalSince1970
+{
+    NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeIntervalSince1970];
+    // create formatter singlton
+    static NSDateFormatter *dateFormatter = nil;
+    static dispatch_once_t oncetoken;
+    dispatch_once(&oncetoken, ^{
+        dateFormatter = [[NSDateFormatter alloc] init];
+        [dateFormatter setDateFormat:SHORT_DATE_TIME_FORMAT];
+    });
+    
+    return [dateFormatter stringFromDate:date];
 }
 
 #pragma mark - Set Positions
@@ -195,6 +211,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 
     CGPoint rightHandleCentre = [self getCentreOfRect:self.rightHandle.frame];
     CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
+//    CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
 
     CGSize minLabelTextSize = [self.minLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
     CGSize maxLabelTextSize = [self.maxLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
@@ -203,13 +220,14 @@ static const CGFloat kLabelsFontSize = 12.0f;
     float newRightMostXInMinLabel = newMinLabelCenter.x + minLabelTextSize.width/2;
     float newSpacingBetweenTextLabels = newLeftMostXInMaxLabel - newRightMostXInMinLabel;
 
-    if (self.disableRange == YES || newSpacingBetweenTextLabels > minSpacingBetweenLabels) {
+    if (newSpacingBetweenTextLabels > minSpacingBetweenLabels) {
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
     }
     else {
         newMinLabelCenter = CGPointMake(self.minLabel.position.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
         newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
+//        newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
         self.minLabel.position = newMinLabelCenter;
         self.maxLabel.position = newMaxLabelCenter;
 
@@ -245,10 +263,6 @@ static const CGFloat kLabelsFontSize = 12.0f;
                 self.rightHandleSelected = YES;
                 [self animateHandle:self.rightHandle withSelection:YES];
             }
-        }
-
-        if ([self.delegate respondsToSelector:@selector(didStartTouchesInRangeSlider:)]){
-            [self.delegate didStartTouchesInRangeSlider:self];
         }
 
         return YES;
@@ -298,9 +312,9 @@ static const CGFloat kLabelsFontSize = 12.0f;
     [self updateLabelValues];
 
     //update the delegate
-    if (self.delegate && (self.leftHandleSelected || self.rightHandleSelected)){
-        [self.delegate rangeSlider:self didChangeSelectedMinimumValue:self.selectedMinimum andMaximumValue:self.selectedMaximum];
-    }
+//    if (self.delegate && (self.leftHandleSelected || self.rightHandleSelected)){
+//        [self.delegate rangeSlider:self didChangeSelectedMinimumValue:self.selectedMinimum andMaximumValue:self.selectedMaximum];
+//    }
 }
 
 - (BOOL)continueTrackingWithTouch:(UITouch *)touch withEvent:(UIEvent *)event {
@@ -346,9 +360,15 @@ static const CGFloat kLabelsFontSize = 12.0f;
         self.rightHandleSelected = NO;
         [self animateHandle:self.rightHandle withSelection:NO];
     }
-    if ([self.delegate respondsToSelector:@selector(didEndTouchesInRangeSlider:)]) {
-        [self.delegate didEndTouchesInRangeSlider:self];
+}
+
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    // only update when touch finished
+    if (self.delegate && (self.leftHandleSelected || self.rightHandleSelected)){
+        [self.delegate rangeSlider:self didChangeSelectedMinimumValue:self.selectedMinimum andMaximumValue:self.selectedMaximum];
     }
+    [super touchesEnded:touches withEvent:event];
 }
 
 #pragma mark - Animation
