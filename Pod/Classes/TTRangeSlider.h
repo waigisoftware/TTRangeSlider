@@ -15,6 +15,11 @@ IB_DESIGNABLE
 /**
  * The minimum possible value to select in the range
  */
+@property (nonatomic, assign) IBInspectable BOOL isDateType;
+
+/**
+ * The minimum possible value to select in the range
+ */
 @property (nonatomic, assign) IBInspectable float minValue;
 
 /**

@@ -32,6 +32,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
 //do all the setup in a common place, as there can be two initialisers called depending on if storyboards or code are used. The designated initialiser isn't always called :|
 - (void)initialiseControl {
     //defaults:
+    _isDateType = YES;
     _minValue = 0;
     _selectedMinimum = 10;
     _maxValue = 100;
@@ -170,13 +171,19 @@ static const CGFloat kLabelsFontSize = 12.0f;
         return;
     }
 
-//    NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
+    if (_isDateType) {
+        // show labels as date
+        self.minLabel.string = [self toShortDateTimeFormat:self.selectedMinimum];
+        self.maxLabel.string = [self toShortDateTimeFormat:self.selectedMaximum];
+    } else {
+        // show labels as number
+        NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
 
-//    self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
-//    self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
-    self.minLabel.string = [self toShortDateTimeFormat:self.selectedMinimum];
-    self.maxLabel.string = [self toShortDateTimeFormat:self.selectedMaximum];
+        self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
+        self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
+    }
 }
+
 #define SHORT_DATE_TIME_FORMAT @"dd MMM yyyy h:mm"
 -(NSString *) toShortDateTimeFormat:(NSTimeInterval)timeIntervalSince1970
 {
