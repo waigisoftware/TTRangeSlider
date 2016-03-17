@@ -68,7 +68,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.minLabel = [[CATextLayer alloc] init];
     self.minLabel.alignmentMode = kCAAlignmentCenter;
     self.minLabel.fontSize = kLabelsFontSize;
-    self.minLabel.frame = CGRectMake(0, 0, 150, TEXT_HEIGHT);
+    self.minLabel.frame = CGRectMake(8, 0, 150, TEXT_HEIGHT);
     self.minLabel.contentsScale = [UIScreen mainScreen].scale;
     self.minLabel.contentsScale = [UIScreen mainScreen].scale;
     if (self.minLabelColour == nil){
@@ -81,7 +81,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     self.maxLabel = [[CATextLayer alloc] init];
     self.maxLabel.alignmentMode = kCAAlignmentCenter;
     self.maxLabel.fontSize = kLabelsFontSize;
-    self.maxLabel.frame = CGRectMake(0, 100, 150, TEXT_HEIGHT);
+    self.maxLabel.frame = CGRectMake(self.frame.size.width - 8 - 150, 0, 150, TEXT_HEIGHT);
     self.maxLabel.contentsScale = [UIScreen mainScreen].scale;
     if (self.maxLabelColour == nil){
         self.maxLabel.foregroundColor = self.tintColor.CGColor;
@@ -179,8 +179,8 @@ static const CGFloat kLabelsFontSize = 12.0f;
         // show labels as number
         NSNumberFormatter *formatter = (self.numberFormatterOverride != nil) ? self.numberFormatterOverride : self.decimalNumberFormatter;
         
-        self.minLabel.string = [formatter stringFromNumber:@(self.selectedMinimum)];
-        self.maxLabel.string = [formatter stringFromNumber:@(self.selectedMaximum)];
+        self.minLabel.string = [NSString stringWithFormat:@"$ %@", [formatter stringFromNumber:@(self.selectedMinimum)]];
+        self.maxLabel.string = [NSString stringWithFormat:@"$ %@", [formatter stringFromNumber:@(self.selectedMaximum)]];
     }
 }
 
@@ -195,7 +195,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
     [dateFormatter setDateFormat:SHORT_DATE_TIME_FORMAT];
     //    });
-    NSLog(@"\n\n---------- slider timezone = %@\ndate.description = %@\nformatter = %@\n\n", [NSTimeZone defaultTimeZone], date.description, [dateFormatter stringFromDate:date]);
+    //    NSLog(@"\n\n---------- slider timezone = %@\ndate.description = %@\nformatter = %@\n\n", [NSTimeZone defaultTimeZone], date.description, [dateFormatter stringFromDate:date]);
     
     return [dateFormatter stringFromDate:date];
 }
@@ -210,41 +210,45 @@ static const CGFloat kLabelsFontSize = 12.0f;
 }
 
 - (void)updateLabelPositions {
+    self.minLabel.frame = CGRectMake(0, 0, 150, TEXT_HEIGHT);
+    self.maxLabel.frame = CGRectMake(self.frame.size.width - 150, 0, 150, TEXT_HEIGHT);
     //the centre points for the labels are X = the same x position as the relevant handle. Y = the y position of the handle minus half the height of the text label, minus some padding.
-    int padding = 8;
-    float minSpacingBetweenLabels = 8.0f;
-    
-    CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
-    CGPoint newMinLabelCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
-    
-    CGPoint rightHandleCentre = [self getCentreOfRect:self.rightHandle.frame];
-    CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
-    //    CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
-    
-    CGSize minLabelTextSize = [self.minLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
-    CGSize maxLabelTextSize = [self.maxLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
-    
-    float newLeftMostXInMaxLabel = newMaxLabelCenter.x - maxLabelTextSize.width/2;
-    float newRightMostXInMinLabel = newMinLabelCenter.x + minLabelTextSize.width/2;
-    float newSpacingBetweenTextLabels = newLeftMostXInMaxLabel - newRightMostXInMinLabel;
-    
-    if (newSpacingBetweenTextLabels > minSpacingBetweenLabels) {
-        self.minLabel.position = newMinLabelCenter;
-        self.maxLabel.position = newMaxLabelCenter;
-    }
-    else {
-        newMinLabelCenter = CGPointMake(self.minLabel.position.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
-        newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
-        //        newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
-        self.minLabel.position = newMinLabelCenter;
-        self.maxLabel.position = newMaxLabelCenter;
-        
-        //Update x if they are still in the original position
-        if (self.minLabel.position.x == self.maxLabel.position.x && self.leftHandle != nil) {
-            self.minLabel.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
-            self.maxLabel.position = CGPointMake(leftHandleCentre.x + self.minLabel.frame.size.width/2 + minSpacingBetweenLabels + self.maxLabel.frame.size.width/2, self.maxLabel.position.y);
-        }
-    }
+    /*
+     int padding = 8;
+     float minSpacingBetweenLabels = 8.0f;
+     
+     CGPoint leftHandleCentre = [self getCentreOfRect:self.leftHandle.frame];
+     CGPoint newMinLabelCenter = CGPointMake(leftHandleCentre.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
+     
+     CGPoint rightHandleCentre = [self getCentreOfRect:self.rightHandle.frame];
+     CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
+     //    CGPoint newMaxLabelCenter = CGPointMake(rightHandleCentre.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
+     
+     CGSize minLabelTextSize = [self.minLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
+     CGSize maxLabelTextSize = [self.maxLabel.string sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:kLabelsFontSize]}];
+     
+     float newLeftMostXInMaxLabel = newMaxLabelCenter.x - maxLabelTextSize.width/2;
+     float newRightMostXInMinLabel = newMinLabelCenter.x + minLabelTextSize.width/2;
+     float newSpacingBetweenTextLabels = newLeftMostXInMaxLabel - newRightMostXInMinLabel;
+     
+     if (newSpacingBetweenTextLabels > minSpacingBetweenLabels) {
+     self.minLabel.position = newMinLabelCenter;
+     self.maxLabel.position = newMaxLabelCenter;
+     }
+     else {
+     newMinLabelCenter = CGPointMake(self.minLabel.position.x, self.leftHandle.frame.origin.y - (self.minLabel.frame.size.height/2) - padding);
+     newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y - (self.maxLabel.frame.size.height/2) - padding);
+     //        newMaxLabelCenter = CGPointMake(self.maxLabel.position.x, self.rightHandle.frame.origin.y + self.rightHandle.frame.size.height + (self.maxLabel.frame.size.height/2) + padding);
+     self.minLabel.position = newMinLabelCenter;
+     self.maxLabel.position = newMaxLabelCenter;
+     
+     //Update x if they are still in the original position
+     if (self.minLabel.position.x == self.maxLabel.position.x && self.leftHandle != nil) {
+     self.minLabel.position = CGPointMake(leftHandleCentre.x, self.minLabel.position.y);
+     self.maxLabel.position = CGPointMake(leftHandleCentre.x + self.minLabel.frame.size.width/2 + minSpacingBetweenLabels + self.maxLabel.frame.size.width/2, self.maxLabel.position.y);
+     }
+     }
+     */
 }
 
 #pragma mark - Touch Tracking
