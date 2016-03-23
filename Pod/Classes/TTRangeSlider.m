@@ -184,7 +184,7 @@ static const CGFloat kLabelsFontSize = 12.0f;
     }
 }
 
-#define SHORT_DATE_TIME_FORMAT @"dd MMM yyyy h:mm"
+#define SHORT_DATE_TIME_FORMAT @"dd MMM yyyy h:mm aa"
 -(NSString *) toShortDateTimeFormat:(NSTimeInterval)timeIntervalSince1970
 {
     NSDate *date = [NSDate dateWithTimeIntervalSince1970:timeIntervalSince1970];
