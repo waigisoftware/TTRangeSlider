@@ -31,7 +31,7 @@ static CGFloat kLabelsFontSize = 12.0f;
 
 //do all the setup in a common place, as there can be two initialisers called depending on if storyboards or code are used. The designated initialiser isn't always called :|
 - (void)initialiseControl {
-    kLabelsFontSize = [UIScreen mainScreen].bounds.size.width > 320 ? 12.0f : 10.0f;
+    kLabelsFontSize = [UIScreen mainScreen].bounds.size.width > 320 ? 12.0f : 9.0f;
     
     //defaults:
     _isDateType = YES;
