@@ -25,12 +25,14 @@ const float TEXT_HEIGHT = 14;
 
 @end
 
-static const CGFloat kLabelsFontSize = 12.0f;
+static CGFloat kLabelsFontSize = 12.0f;
 
 @implementation TTRangeSlider
 
 //do all the setup in a common place, as there can be two initialisers called depending on if storyboards or code are used. The designated initialiser isn't always called :|
 - (void)initialiseControl {
+    kLabelsFontSize = [UIScreen mainScreen].bounds.size.width > 320 ? 12.0f : 10.0f;
+    
     //defaults:
     _isDateType = YES;
     _minValue = 0;
